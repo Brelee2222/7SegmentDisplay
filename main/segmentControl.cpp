@@ -5,7 +5,7 @@ void initSegDisp() {
 	pinMode(segmentClock, OUTPUT);
 	pinMode(segmentSerial, OUTPUT);
     digitalWrite(segmentLatch, HIGH);
-    digitalWrite(segmentClock, HIGH);
+    digitalWrite(segmentClock, LOW);
     digitalWrite(segmentSerial, HIGH);
 }
 
@@ -15,7 +15,7 @@ void tickPin(uint8_t pin) {
 }
 
 void resetDisplay() {
-    writeDisp(0b11111111);
+    writeDisp(0);
     dispReg();
 }
 
@@ -28,13 +28,15 @@ void nextSeg() {
 }
 
 void writeSeg(boolean output) {
+    digitalWrite(segmentClock, LOW);
     digitalWrite(segmentSerial, output);
-    nextSeg();
+    digitalWrite(segmentClock, HIGH);
 }
 
 void writeDisp(byte segs) {
     int segPos = 0;
-    while(++segPos != 7) {
+    while(segPos != 8) {
         writeSeg(segs >> segPos & 1);
+        segPos++;
     }
 }

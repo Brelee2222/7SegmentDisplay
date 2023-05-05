@@ -33,7 +33,7 @@ void loop()
 
 // dispDigit has the digit param for any special use for the display.
 void dispDigit(char* digit) {
-    writeDisp(digits[*digit & 0xff]);
+    writeDisp(digits[*digit & 0xf]);
 
     *digit += 1;
 
