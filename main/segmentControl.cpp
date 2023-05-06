@@ -6,10 +6,10 @@ void initSegDisp() {
 	pinMode(segmentSerial, OUTPUT);
     digitalWrite(segmentLatch, HIGH);
     digitalWrite(segmentClock, LOW);
-    digitalWrite(segmentSerial, HIGH);
+    digitalWrite(segmentSerial, LOW);
 }
 
-void tickPin(uint8_t pin) {
+void tickPin(char pin) {
     digitalWrite(pin, LOW);
     digitalWrite(pin, HIGH);
 }
@@ -23,20 +23,42 @@ void dispReg() {
     tickPin(segmentLatch);
 }
 
+char segPos = 0;
+
 void nextSeg() {
     tickPin(segmentClock);
+    segPos++;
 }
 
-void writeSeg(boolean output) {
-    digitalWrite(segmentClock, LOW);
-    digitalWrite(segmentSerial, output);
-    digitalWrite(segmentClock, HIGH);
-}
+void skipSegs(char skips) {
+    digitalWrite(segmentLatch, LOW);
 
-void writeDisp(byte segs) {
-    int segPos = 0;
-    while(segPos != 8) {
-        writeSeg(segs >> segPos & 1);
-        segPos++;
+    for(skips &= 0b111; skips; skips--) {
+        nextSeg();
     }
+
+    digitalWrite(segmentLatch, HIGH);
+
+    segPos += skips;
+}
+
+void setSegPos(char newPos) {
+    skipSegs(newPos - segPos);
+}
+
+void resetSegPos(char pos) {
+    segPos = pos;
+}
+
+void writeSeg(boolean on) {
+    digitalWrite(segmentSerial, on);
+    nextSeg();
+}
+
+void writeDisp(char segs) {
+    setSegPos(0);
+    
+    do {
+        writeSeg(segs >> segPos & 1);
+    } while(segPos);
 }
